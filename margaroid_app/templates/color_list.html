@@ -1,0 +1,11 @@
+<div class="card-body row">
+	{% for color in colors %}
+	<div class="col-xl-6">
+		<label class="image-radio">
+			<img src="{{ color.color.image.url }}" class="img-fluid">
+			<input type="radio" name="image-radio-input">
+			<i class="fa fa-check" style="display: none;" aria-hidden="true"></i>
+		</label>
+	</div>
+	{% endfor %}
+</div>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+{% load static %}
+{% load crispy_forms_tags %}
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{% block title %}Маргроид | Водяные и электрические полотенцесушители.{% endblock title %}</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+	<link rel="shortcut icon" href="{% static 'img/favicon.jpeg' %}">
+	<script src='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.css' rel='stylesheet'/>
+</head>
+<body >
+
+	<nav class="mobile-bottom-nav">
+		<div class="mobile-bottom-nav__item mobile-bottom-nav__item--active">
+			<div class="mobile-bottom-nav__item-content">
+				<a href="{% url 'compare_view' %}"><i class="fa fa-files-o" aria-hidden="true"></i></a>
+				<a href="{% url 'compare_view' %}" class="compare-products">Сравнение <span class="badge badge-secondary">{{ comparison_list }}</span></a>
+			</div>
+		</div>
+		<div class="mobile-bottom-nav__item">		
+			<div class="mobile-bottom-nav__item-content">
+				<a href="{% url 'cart_view' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+				<a href="{% url 'cart_view' %}">Корзина <span class="badge badge-secondary" id="cart-total-mobile">{{ cart_items_count }}</span></a>
+			</div>
+		</div>
+		{% if request.user.is_authenticated %}
+		<div class="mobile-bottom-nav__item">
+			<div class="mobile-bottom-nav__item-content">
+				<a href="{% url 'profile_view' %}"><i class="fa fa-user" aria-hidden="true"></i></a>
+				<a href="{% url 'profile_view' %}">Профиль</a>
+			</div>		
+		</div>
+		{% else %}
+		<div class="mobile-bottom-nav__item">
+			<div class="mobile-bottom-nav__item-content">
+				<a href="{% url 'login_view' %}"><i class="fa fa-sign-in" aria-hidden="true"></i></a>
+				<a href="{% url 'login_view' %}">Войти</a>
+			</div>		
+		</div>
+		{% endif %}
+	</nav>
+
+	<nav class="navbar navbar-expand navbar-light" id="top-navbar">
+		<div class="container">
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item">
+					<a href="{% url 'compare_view' %}" class="compare-products"><i class="fa fa-files-o" aria-hidden="true"></i> Сравнение <span class="badge badge-secondary">{{ comparison_list }}</span></a>
+				</li>
+				<li class="nav-item">
+					<a href="{% url 'cart_view' %}" class="cart-products"><i class="fa fa-shopping-cart" aria-hidden="true"></i> Корзина <span class="badge badge-secondary">{{ cart_items_count }}</span></a>
+				</li>
+				{% if request.user.is_authenticated %}
+				<li class="nav-item dropdown">
+					<a style="padding: 0;" class="nav-link" href="#" id="profile-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-user" aria-hidden="true"></i> Профиль
+					</a>
+					<div class="dropdown-menu" aria-labelledby="profile-dropdown">
+						<a class="dropdown-item" href="{% url 'profile_view' %}">Персональные данные</a>
+						<a class="dropdown-item" href="{% url 'orders_view' %}">Мои заказы</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="{% url 'logout_view' %}">Выход</a>
+					</div>
+				</li>
+				{% else %}
+				<li class="nav-item">
+					<a href="{% url 'login_view' %}"><i class="fa fa-sign-in" aria-hidden="true"></i> Войти</a>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
+	</nav>
+
+	<nav>
+		<div class="container" id="middle-navbar">
+			<div class="row" id="info-navbar">
+				<div class="col-xl-4 col-lg-4 col-md-4 col-sm-7" id="logo-block">
+					<a href="{% url 'base_view' %}"><img src="{% static 'img/main_logo.jpeg' %}" class="img-fluid"></a>
+				</div>
+				<div style="padding: 0;" align="center" class="col-xl-2 col-lg-2 col-md-3 col-sm-6 phone-number"><b>8(977)873-01-77</b></div>
+				<div style="padding: 0;" align="center" class="col-xl-2 col-lg-2 col-md-3 col-sm-6 phone-number"><b>8(916)283-01-77</b></div>
+				<form class="col-xl-4 col-lg-4 col-md-5" method="GET" action="{% url 'search_view' %}">
+					<div class="input-group">
+						<input class="form-control py-2" placeholder="Поиск по каталогу" name="q">
+						<span class="input-group-append">
+							<button class="btn" type="submit">
+								<i class="fa fa-search"></i>
+							</button>
+						</span>
+					</div>
+				</form>
+			</div>	
+		</div>
+	</nav>
+	
+    <style>
+	    #bottom-navbar ul li a:hover {
+	        color: #5bc0de;
+	    }
+	</style>
+
+	<nav class="navbar navbar-expand-custom navbar-light" id="bottom-navbar">
+		<div class="container">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar10">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="navbar-collapse collapse" id="navbar10">
+				<ul class="navbar-nav nav-fill w-100">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Все товары
+						</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+							{% for category in categories %}
+							{% if category.subtype.all %}
+							<a class="dropdown-item" href="{% url 'category_detail_view' category.slug %}">{{ category.name }}</a>
+							{% else %}
+							<a class="dropdown-item" href="{% url 'components_view' %}">{{ category.name }}</a>
+							{% endif %}
+							{% endfor %}
+						</div>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'showroom_view' %}">Show Room</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'delivery_view' %}">Доставка</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/#contacts">Контакты</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	{% block content %}
+	<main>
+
+		<div class="container" id="main-carousel">
+			<div id="carouselExampleIndicators" class="carousel slide col-xl-12 col-lg-12 col-md-12" data-ride="carousel">
+				<ol class="carousel-indicators" style="filter: invert(100%);">
+					<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+					<li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+					<li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+				</ol>
+				<div class="carousel-inner">
+					{% for category in categories %}
+					{% if forloop.first %}
+					<div align="center" class="carousel-item active">
+						{% if category.subtype.all %}
+						<a href="{% url 'category_detail_view' category.slug %}"><img src="{{ category.image.url }}" alt="First slide" height="400"></a>
+						{% else %}
+						<a href="{% url 'components_view' %}"><img src="{{ category.image.url }}" alt="First slide" height="400"></a>
+						{% endif %}	
+						<div class="carousel-caption">
+							{% if category.subtype.all %}
+							<a href="{% url 'category_detail_view' category.slug %}"><p>{{ category.name }}</p></a>
+							{% else %}
+							<a href="{% url 'components_view' %}"><p>{{ category.name }}</p></a>							
+							{% endif %}
+						</div>
+					</div>
+					{% else %}
+					<div align="center" class="carousel-item">
+						{% if category.subtype.all %}
+						<a href="{% url 'category_detail_view' category.slug %}"><img src="{{ category.image.url }}" alt="First slide" height="400"></a>
+						{% else %}
+						<a href="{% url 'components_view' %}"><img src="{{ category.image.url }}" alt="First slide" height="400"></a>
+						{% endif %}
+						<div class="carousel-caption">
+							{% if category.subtype.all %}
+							<a href="{% url 'category_detail_view' category.slug %}"><p>{{ category.name }}</p></a>
+							{% else %}
+							<a href="{% url 'components_view' %}"><p>{{ category.name }}</p></a>							
+							{% endif %}
+						</div>
+					</div>
+					{% endif %}
+					{% endfor %}
+				</div>
+				<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+					<span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(100%);"></span>
+					<span class="sr-only">Previous</span>
+				</a>
+				<a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+					<span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(100%);"></span>
+					<span class="sr-only">Next</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="container" id="new-goods-container">
+			<h2 align="center">Акции</h2>
+
+			<div class="row">
+				{% for new_item in products_on_sale %}
+				<div class="new-item-wrapper col-xl-3 col-lg-4 col-md-6 col-sm-6">
+					<div class="ribbon"><span>{{ new_item.sale }}% SALE</span></div>
+					<div class="new-product-item">
+						<a href="{% url 'product_detail_view' new_item.id %}"><img src="{{ new_item.image.url }}" height="300"></a>
+						<p align="center" class="new-product-name"><a href="{% url 'product_detail_view' new_item.id %}">{{ new_item.name }}</a></p>
+						<p class="new-price">{{ new_item.new_price }}</p>
+						<div class="new-item-footer">
+							<span class="new-product-price">
+								{{ new_item.price }}
+							</span>
+							<span data-toggle="tooltip" data-placement="top" title="Сравнить" class="item-compare" items-compare="{{ comparison_list }}" product-id="{{ new_item.id }}"><i class="fa fa-files-o" aria-hidden="true"></i></span>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="container" id="news">
+			<h2 align="center"><a href="{% url 'news_view' %}">Новости</a></h2>
+
+			<div class="row">
+				{% for news_item in news %}
+				<div class="col-xl-12 news-item" style="position: relative;">
+					<p><a href="{% url 'detail_news_view' news_item.slug %}">{{ news_item.title }}</a></p>
+					<p class="text-muted">{{ news_item.timestamp|date:'d-m-Y' }}</p>
+					<p>{{ news_item.content|truncatechars:200|safe }}<a href="{% url 'detail_news_view' news_item.slug %}" style="text-decoration: none;">читать далее</a></p>
+				</div>
+				{% endfor %}
+			</div>
+
+		</div>
+
+		<div class="container" id="contacts">
+			<h2 align="center">Контакты</h2>
+			<div class="" id="contact-changer">
+				<div class="row">
+					<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6" align="center">
+						<i class="fa fa-map-marker" aria-hidden="true"></i>
+					</div>
+					<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6" align="center">
+						<i class="fa fa-phone" aria-hidden="true"></i>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 contact-info" align="center">
+						<p>Западная улица, стр 100 рабочий посёлок Новоивановское, Одинцовский городской округ (2 этаж, павильон B-71).</p>
+					</div>
+					<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 contact-info" align="center">
+						<p>8 (977) 873-01-77</p>
+					</div>
+				</div>
+			</div>
+
+			<style type="text/css">
+				.marker {
+					background-image: url('/static/img/mapbox-icon.png');
+					background-size: cover;
+					width: 50px;
+					height: 50px;
+					border-radius: 50%;
+					cursor: pointer;
+				}
+			</style>
+
+			<div class="row" id="contact-block" style="margin-bottom: 100px;">
+				<div class="col-md-6" style="margin-right: 0; padding-right: 0;">
+					<div id='map' style='width: 100%; height: 450px;'></div>
+
+					<script>
+
+						mapboxgl.accessToken = 'pk.eyJ1IjoiYWxleHBldHVsIiwiYSI6ImNrN2t4d203cDAyODczbG10MWV5OW81eTYifQ.QiHe1vd_4ugNwU7m51WmTg';
+						var map = new mapboxgl.Map({
+							container: 'map',
+							center: [37.375181269449385, 55.7128970055779],
+							zoom: 15,
+							bearing: 0,
+							style: 'mapbox://styles/mapbox/streets-v11'
+						});
+						var geojson = {
+							type: 'FeatureCollection',
+							features: [{
+								type: 'Feature',
+								geometry: {
+									type: 'Point',
+									coordinates: [37.375181269449385, 55.7128970055779]
+								},
+								properties: {
+									title: 'Mapbox',
+									description: 'Washington, D.C.'
+								}
+							},
+							{
+								type: 'Feature',
+								geometry: {
+									type: 'Point',
+									coordinates: [37.375181269449385, 55.7128970055779]
+								},
+								properties: {
+									title: 'Mapbox',
+									description: 'San Francisco, California'
+								}
+							}]
+						};
+						geojson.features.forEach(function(marker) {
+
+						  // create a HTML element for each feature
+						  var el = document.createElement('div');
+						  el.className = 'marker';
+
+						  // make a marker for each feature and add to the map
+						  new mapboxgl.Marker(el)
+						  .setLngLat(marker.geometry.coordinates)
+						  .addTo(map);
+						});
+</script>
+</div>
+<div class="col-md-6" id="contact-form-right">
+	<form id="send-feedback-form" method="POST">
+		{% csrf_token %}
+		{{ contact_form|crispy }}
+		<button class="btn btn-info" id="send-feedback" style="width: 100%;">Отправить</button>
+	</form>
+</div>
+</div>
+</div>
+</main>
+
+{% endblock content %}
+
+<footer class="page-footer font-small blue-grey lighten-5" id="footer-container"> 
+	<div class="container text-center text-md-left">
+		<div class="row dark-grey-text">
+			<div class="col-md-4 col-lg-4">
+				<h6 class="text-uppercase font-weight-bold">Товары</h6><hr>
+				{% for category in categories %}
+				{% if category.subtype.all %}
+				<p>
+					<a class="dark-grey-text" href="{% url 'category_detail_view' category.slug %}">{{ category.name }}</a>
+				</p>
+				{% else %}
+				<p>
+					<a class="dark-grey-text" href="{% url 'components_view' %}">{{ category.name }}</a>
+				</p>
+				{% endif %}
+				{% endfor %}
+			</div>
+			<div class="col-md-4 col-lg-4">
+				<h6 class="text-uppercase font-weight-bold">Полезные ссылки</h6><hr>
+				<p>
+					<a class="dark-grey-text" href="{% url 'profile_view' %}">Личный кабинет</a>
+				</p>
+				<p>
+					<a class="dark-grey-text" href="{% url 'pricelist_view' %}">Прайс-лист</a>
+				</p>
+				<p>
+					<a class="dark-grey-text" href="{% url 'showroom_view' %}">Наш Show Room</a>
+				</p>
+				<p>
+					<a class="dark-grey-text" href="{% url 'delivery_view' %}">Доставка</a>
+				</p>
+			</div>
+			<div class="col-md-4 col-lg-4">
+				<h6 class="text-uppercase font-weight-bold">Контакты</h6><hr>
+				<p><i class="fa fa-map-marker" aria-hidden="true"></i> Западная улица, стр 100 рабочий посёлок Новоивановское, Одинцовский городской округ (2 этаж, павильон B-71).</p>
+				<p><i class="fa fa-envelope" aria-hidden="true"></i> tdvels@mail.ru</p>
+				<p><i class="fa fa-phone"></i> 8 (977) 873-01-77</p>
+				<p><i class="fa fa-phone"></i> 8 (916) 283-01-77</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="footer-copyright text-center text-black-50 py-3">
+		<p>© TD VELS 2020</p>
+	</div>
+</footer>
+
+<script type="text/javascript" src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-validate.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/flash.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/masked-input.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
+<script type="text/javascript">
+	var add_to_comparison_url = "{% url 'add_to_comparison_view' %}";
+	var send_feedback_url = "{% url 'send_feedback_view' %}";
+</script>
+
+</body>
+</html>
